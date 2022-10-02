@@ -1,40 +1,56 @@
+import React from 'react';
 import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
-import icon from '../../assets/icon.svg';
 import './App.css';
 
 const Hello = () => {
+  const [state, setState] = React.useState<any>([]);
+
+  const fetch = async () => {
+    const r = await window.electron.prisma.user.findMany();
+    setState(r);
+  };
+
+  React.useEffect(() => {
+    fetch();
+  }, []);
+
+  const rand = (length: number) => {
+    let result = '';
+    const characters =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const charactersLength = characters.length;
+    for (let i = 0; i < length; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+  };
+
+  const add = async () => {
+    const e = {
+      data: {
+        name: rand(5),
+        email: rand(10),
+        posts: {
+          create: { title: 'Hello World' },
+        },
+        profile: {
+          create: { bio: 'I like turtles' },
+        },
+      },
+    };
+
+    await window.electron.prisma.user.create(e);
+
+    fetch();
+  };
+
   return (
     <div>
-      <div className="Hello">
-        <img width="200" alt="icon" src={icon} />
-      </div>
-      <h1>electron-react-boilerplate</h1>
-      <div className="Hello">
-        <a
-          href="https://electron-react-boilerplate.js.org/"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <button type="button">
-            <span role="img" aria-label="books">
-              📚
-            </span>
-            Read our docs
-          </button>
-        </a>
-        <a
-          href="https://github.com/sponsors/electron-react-boilerplate"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <button type="button">
-            <span role="img" aria-label="folded hands">
-              🙏
-            </span>
-            Donate
-          </button>
-        </a>
-      </div>
+      <h1>Data</h1>
+      <pre>{JSON.stringify(state, null, 3)}</pre>
+      <button type="button" onClick={() => add()}>
+        ADD
+      </button>
     </div>
   );
 };

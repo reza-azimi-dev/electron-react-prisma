@@ -1,8 +1,10 @@
+import { PrismaClient } from '@prisma/client';
 import { Channels } from 'main/preload';
 
 declare global {
   interface Window {
     electron: {
+      prisma: PrismaClient;
       ipcRenderer: {
         sendMessage(channel: Channels, args: unknown[]): void;
         on(
